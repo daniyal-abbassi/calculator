@@ -1,48 +1,58 @@
-const inputVal = document.getElementById("display");
-inputVal.value=0;
-const btns = document.getElementsByTagName('button');
+const display = document.getElementById("display");
+// inputVal.value = 0;
+const btns = document.querySelectorAll('button');
 
-console.log(inputVal, btns.length)
 
 
 let displayArray = [];
+let displayString;
 
-for (let i = 0; i < btns.length; i++) {
-    btns[i].addEventListener('click', (event) => {
+function calculate(btn) {
+    const value = btn.innerText;
 
-        let displayValue = event.target.value;
-        displayArray.push(displayValue);
-        if (displayArray[0]==='+' ||displayArray[0]==='/'||displayArray[0]==='*'||displayArray[0]==='%' || displayArray[0]==='-') {
-            displayArray.splice(-1);
+    if (value === 'AC') {
+        displayArray = [];
+        display.innerText = '0'
+        return
+    } else if (displayString && value === '=') {
+
+        display.innerText = eval(displayString);
+    } else if (value === 'DEL') {
+
+        displayArray.pop();
+        display.innerText = displayArray.join('');
+    } else if (value === '0' && displayString === '0') {
+
+        return;
+    } else {
+
+        let lastChar = displayString ? displayString.slice(-1) : '';
+        if (lastChar === '' && ["+", "-", "*", "/", "%", "="].includes(value)) {
+
+            return;
         }
-                   
-        // console.log(displayValue, displayArray)
+        if (["+", "-", "*", "/", "%"].includes(value) && ["+", "-", "*", "/", "%"].includes(lastChar)) {
 
-        let lastchar = displayArray[displayArray.length-1];
-        let indexOfLastChar = displayArray.indexOf(lastchar);
+            return
+        }
+        if (value === '.') {
+            let lastNumber = displayString.split(/[\+\/\-\*]/).pop();
+            if (lastNumber.includes('.')) {
 
-        console.log(displayArray.slice(-2))
-        if (displayValue === 'all-clear') {
-            inputVal.value = '0';
-            displayArray = [];
-        } else if (displayValue === 'DEL') {
-            displayArray.splice(displayArray.indexOf('DEL') - 1, 1);
-            displayArray.pop();
-            inputVal.value = displayArray.join('');
+                return;
+            }
+        }
 
-            console.log(displayArray)
-        } else if (displayValue === '=') {
-            displayArray.pop();
-            let ans = eval(displayArray.join(''));
-            displayArray = [];
-            displayArray.push(ans);
-            console.log(displayArray);
-        } else if ( displayArray.slice(-2).join('') === '++' || displayArray.slice(-2).join('') === '--' || displayArray.slice(-2).join('') === '**' || displayArray.slice(-2).join('') === '**' || displayArray.slice(-2).join('') === '//' || displayArray.slice(-2).join('') === '%%' || displayArray.slice(-2).join('') === '') {
-            console.log('dublicate')
-            displayArray.splice(-1)
-        }  
-        
-       
-        inputVal.value = displayArray.join('');
-    })
+        displayArray.push(value);
+        displayString = displayArray.join('');
+        display.innerText = displayString;
+    }
 }
+
+btns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        calculate(btn)
+    }
+
+    )
+})
